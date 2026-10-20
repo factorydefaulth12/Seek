@@ -28,7 +28,7 @@ jobs:
       - name: Install API dependencies
         run: pip install -r api/requirements.txt
       - name: Check Python syntax
-        run: python -m compileall -q api
+        run: python -m compileall -q api scripts
       - name: Smoke-test API startup
         env:
           SEEK_DB_PATH: /tmp/seek-smoke-test.db
