@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 APP_NAME = "Seek Search API"
-DB_PATH = os.getenv("SEEK_DB_PATH", "/var/data/seek.db")
+DB_PATH = os.getenv("SEEK_DB_PATH", "./seek.db")
 CRAWL_TOKEN = os.getenv("SEEK_CRAWL_TOKEN", "")
 USER_AGENT = "SeekBot/0.1 (+https://github.com/factorydefaulth12/Seek; respectful public-web indexing)"
 MAX_HTML_BYTES = 1_500_000
