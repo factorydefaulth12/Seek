@@ -31,6 +31,21 @@ After the first manual run, scheduled crawls are configured for every six hours.
 
 **The first index is intentionally small.** Each run is capped at 500 newly indexed pages, and the default is 500. The current static index retains up to 2,500 pages with a short text excerpt per page so the public JSON file remains manageable. The crawler follows links over time, but many sites block crawlers, require JavaScript, use rate limits, or disallow indexing. The index is capped at 10,000 pages and may not contain everything you search for. This is an evolving independent index, not Google's entire web index.
 
+## Install Seek and use it as your browser search engine
+
+**Install as an app (Chrome on desktop):**
+1. Open [Seek](https://factorydefaulth12.github.io/Seek/) while online.
+2. Click **Install Seek** in the top bar if Chrome offers it. If the button gives you the menu route instead, open Chrome's **⋮ → Cast, save, and share → Install page as app** (the wording may vary).
+3. Open Seek once while connected so the current site and index can be cached. Later, the installed app can search the cached index offline; new pages and fresh external searches still need internet.
+
+**Make Seek your Chrome address-bar search engine:**
+1. Open Chrome **Settings → Search engine → Manage search engines and site search**.
+2. Under Site search, choose **Add**.
+3. Set name to `Seek`, shortcut to `seek`, and URL to `https://factorydefaulth12.github.io/Seek/?q=%s`.
+4. Save it, then choose Seek as the default if you want searches from the address bar to open Seek. Chrome menus can vary by version.
+
+This is a web app hosted on GitHub Pages, not a Chrome Web Store listing. You can also download the project source using GitHub's **Code → Download ZIP** menu.
+
 ## Optional API backend
 
 The optional API is useful if you later want server-side ranking, a larger index, and a persistent database independent of a JSON file. It is not required for the static GitHub Pages search path.
