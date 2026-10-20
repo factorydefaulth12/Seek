@@ -179,7 +179,7 @@ async function runOwnSearch(q){
  try{
    if(cat==='web'){
      const stopWords=new Set(['a','an','and','are','as','at','be','by','for','from','how','i','in','is','it','of','on','or','that','the','this','to','was','what','when','where','who','why','with','you','your']);
-     const tokens=(query.toLowerCase().match(/[\\p{L}\\p{N}]{2,}/gu)||[]).filter(t=>!stopWords.has(t));
+     const tokens=(query.toLowerCase().match(/[\p{L}\p{N}]{2,}/gu)||[]).filter(t=>!stopWords.has(t));
      if(!tokens.length){panel.replaceChildren();empty('Type a few meaningful words to search.');return}
      const [localResult,wikiResult]=await Promise.allSettled([
        fetch('./seek-index.json?updated=v3').then(r=>{if(!r.ok)throw new Error('Seek index unavailable');return r.json()}),
@@ -187,7 +187,7 @@ async function runOwnSearch(q){
      ]);
      const documents=localResult.status==='fulfilled'?(localResult.value.results||[]):[];
      const corpusSize=Math.max(1,documents.length);
-     const tokenize=value=>(String(value||'').toLowerCase().match(/[\\p{L}\\p{N}]{2,}/gu)||[]);
+     const tokenize=value=>(String(value||'').toLowerCase().match(/[\p{L}\p{N}]{2,}/gu)||[]);
      const fields=['title','snippet','text','url','domain'];
      const fieldWeight={title:3.8,snippet:1.8,text:1,url:0.35,domain:0.25};
      const prepared=documents.map(doc=>{
