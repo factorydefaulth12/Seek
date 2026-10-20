@@ -52,4 +52,19 @@ jobs:
             exit 0
           fi
           git commit -m "Grow Seek public web index"
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "Could not rebase index changes onto main (attempt $attempt)."
+              sleep 2
+              continue
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with another commit (attempt $attempt); retrying."
+            sleep 3
+          done
+          echo "Could not publish the updated index after three attempts."
+          exit 1
