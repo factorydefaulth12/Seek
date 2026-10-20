@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           import re
           html = Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(r"<script>([\\s\\S]*?)</script>", html)
+          scripts = re.findall(r"<script>([\s\S]*?)</script>", html)
           if not scripts:
               raise SystemExit("No inline application script found")
           Path("/tmp/seek-inline.js").write_text(scripts[-1], encoding="utf-8")
