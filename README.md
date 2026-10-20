@@ -2,7 +2,7 @@
 
 **Seek is an independent, crawler-backed search engine project with The Seeker AI and customizable fandom context.**
 
-Seek now has two search paths: a static index hosted alongside the website on GitHub Pages, and an optional FastAPI/SQLite backend for a larger persistent index. The GitHub-only path is designed to work without a separate hosting account or paid service.
+Seek now has two search paths: a static index hosted alongside the website on GitHub Pages, and an optional FastAPI/SQLite backend for a larger persistent index. The GitHub-only path is designed to work without a separate hosting account or paid service. Seek can also be installed as a web app, cache its index for offline use after the first load, and be added as a browser search provider.
 
 ## What is implemented
 
@@ -11,6 +11,9 @@ Seek now has two search paths: a static index hosted alongside the website on Gi
 - **Persistent crawl frontier:** `seek-frontier.json` stores queued URLs between GitHub Actions runs, allowing later crawls to continue discovering pages.
 - **Automated growth:** `.github/workflows/crawl-index.yml` runs on demand or every six hours, updates the static index, and commits the new index/frontier to `main`. The Pages workflow then publishes the updated files.
 - **Optional API:** `api/app.py` offers a FastAPI service with a SQLite full-text index, search and health endpoints, and a token-protected crawl endpoint. `render.yaml` is an optional paid Render deployment blueprint.
+- **Fandom themes:** tap the visible chibi-inspired Korra, Luffy, Chopper, Zoro, Nami, Jinx, Vi, or forest-spirit cards to change the accent palette and save the associated fandom.
+- **Installable app:** `manifest.webmanifest`, `sw.js`, and `icon.svg` enable installation and cached offline search after the first successful load.
+- **Browser search provider:** `opensearch.xml` supports adding Seek to compatible browsers; the search URL accepts `?q=your+terms`.
 - **Homepage:** themes, local search history, fandom customization, The Seeker AI panel, external search provider options, and the independent **Seek Index** mode.
 
 ## Publish the website and first index
@@ -20,13 +23,13 @@ The site uses GitHub Pages, so the frontend and static search index do not need 
 1. Open [Seek Actions](https://github.com/factorydefaulth12/Seek/actions).
 2. If GitHub Pages is not already configured, open **Settings → Pages** and set the build/deployment source to **GitHub Actions**.
 3. In Actions, choose **Grow Seek's web index**.
-4. Click **Run workflow**, keep the default page limit (40), and start it. The first run can take several minutes while SeekBot checks sites and indexes pages.
+4. Click **Run workflow**, keep the default page limit (500), and start it. The first run can take several minutes while SeekBot checks sites and indexes pages.
 5. Wait for the run to finish. The workflow commits `seek-index.json` and `seek-frontier.json`; that commit triggers the Pages deployment workflow.
 6. Open [https://factorydefaulth12.github.io/Seek/](https://factorydefaulth12.github.io/Seek/), choose **✦ Seek Index**, and search a term. You can inspect the public index at [seek-index.json](https://github.com/factorydefaulth12/Seek/blob/main/seek-index.json).
 
 After the first manual run, scheduled crawls are configured for every six hours. GitHub scheduled workflows are best-effort and can be delayed. If the crawl fails, open the run in Actions to read its logs and rerun it.
 
-**The first index is intentionally small.** Each run is capped at 100 newly indexed pages, and the default is 40. The current static index retains up to 2,500 pages with a short text excerpt per page so the public JSON file remains manageable. The crawler follows links over time, but many sites block crawlers, require JavaScript, use rate limits, or disallow indexing. This is an evolving independent index, not Google's entire web index.
+**The first index is intentionally small.** Each run is capped at 500 newly indexed pages, and the default is 500. The current static index retains up to 2,500 pages with a short text excerpt per page so the public JSON file remains manageable. The crawler follows links over time, but many sites block crawlers, require JavaScript, use rate limits, or disallow indexing. The index is capped at 10,000 pages and may not contain everything you search for. This is an evolving independent index, not Google's entire web index.
 
 ## Optional API backend
 
@@ -65,5 +68,7 @@ The homepage can connect to an OpenAI-compatible chat endpoint using a key enter
 - The static index and crawl frontier are committed to this public repository, so their page URLs and short public-page excerpts are publicly visible.
 - Search history and preferences remain in local browser storage unless cleared.
 - The Seeker AI remains optional and uses the provider you configure.
+- **Offline mode:** install Seek and open it at least once while online so the current shell and index can be cached. Offline search only covers the last cached index; fresh web results still require a connection.
+- **School use:** Seek can be used as a study tool, but use it during exams only when your school or exam rules explicitly allow search tools.
 - GitHub Actions and Pages have usage limits; this design is for an early-stage project and will need architectural changes to scale to millions of pages.
 - No existing repository other than `factorydefaulth12/Seek` is changed.
