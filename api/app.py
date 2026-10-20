@@ -81,6 +81,16 @@ def init_db():
             content_hash TEXT
         )""")
         db.execute("CREATE INDEX IF NOT EXISTS idx_pages_domain ON pages(domain)")
+        db.execute("""CREATE TABLE IF NOT EXISTS crawl_queue (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            url TEXT UNIQUE NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            discovered_at TEXT NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0,
+            last_error TEXT
+        )""")
+        now = datetime.now(timezone.utc).isoformat()
+        db.executemany("INSERT OR IGNORE INTO crawl_queue(url,status,discovered_at) VALUES(?, 'pending', ?)", [(url, now) for url in SEEDS])
         db.execute("""CREATE VIRTUAL TABLE IF NOT EXISTS pages_fts USING fts5(
             url UNINDEXED, title, description, body, content='pages', content_rowid='rowid',
             tokenize='unicode61 remove_diacritics 2'
@@ -202,20 +212,36 @@ def crawl_worker(max_pages=80, extra_seeds=None):
     with STATUS_LOCK:
         CRAWL_STATUS.update({"running": True, "started_at": datetime.now(timezone.utc).isoformat(), "finished_at": None, "pages_indexed": 0, "error": None})
     indexed = 0
-    queue = list(dict.fromkeys(SEEDS + (extra_seeds or [])))
-    seen = set()
+    processed = 0
     robots_cache = {}
     last_hit = {}
     try:
+        # Resume the persistent frontier after restarts so each scheduled run can expand further.
+        with connect_db() as db:
+            db.execute("UPDATE crawl_queue SET status='pending' WHERE status='processing'")
+            now = datetime.now(timezone.utc).isoformat()
+            for raw in extra_seeds or []:
+                normalized = normalize_url(raw)
+                if normalized:
+                    db.execute("INSERT OR IGNORE INTO crawl_queue(url,status,discovered_at) VALUES(?, 'pending', ?)", (normalized, now))
         with httpx.Client(headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"}, follow_redirects=False, timeout=12) as client:
-            while queue and indexed < max(1, min(int(max_pages), 200)):
-                raw = queue.pop(0)
-                url = normalize_url(raw)
-                if not url or url in seen:
+            # Bound attempts as well as successful pages so a bad frontier cannot keep a job alive forever.
+            while indexed < max(1, min(int(max_pages), 200)) and processed < min(int(max_pages), 200) * 8:
+                with connect_db() as db:
+                    row = db.execute("SELECT id,url,attempts FROM crawl_queue WHERE status='pending' ORDER BY id LIMIT 1").fetchone()
+                    if not row:
+                        break
+                    db.execute("UPDATE crawl_queue SET status='processing' WHERE id=?", (row["id"],))
+                processed += 1
+                url = normalize_url(row["url"])
+                if not url:
+                    with connect_db() as db:
+                        db.execute("UPDATE crawl_queue SET status='skipped',last_error='unsafe or invalid URL' WHERE id=?", (row["id"],))
                     continue
-                seen.add(url)
                 domain = get_domain(url)
                 if not robots_allowed(client, url, robots_cache):
+                    with connect_db() as db:
+                        db.execute("UPDATE crawl_queue SET status='skipped',last_error='disallowed by robots.txt or robots.txt unavailable' WHERE id=?", (row["id"],))
                     continue
                 wait = DOMAIN_DELAY_SECONDS - (time.time() - last_hit.get(domain, 0))
                 if wait > 0:
@@ -227,24 +253,35 @@ def crawl_worker(max_pages=80, extra_seeds=None):
                         location = response.headers.get("location")
                         if location:
                             target = normalize_url(urljoin(url, location))
-                            if target and target not in seen:
-                                queue.append(target)
+                            if target:
+                                with connect_db() as db:
+                                    db.execute("INSERT OR IGNORE INTO crawl_queue(url,status,discovered_at) VALUES(?, 'pending', ?)", (target, datetime.now(timezone.utc).isoformat()))
+                        with connect_db() as db:
+                            db.execute("UPDATE crawl_queue SET status='done',last_error=NULL WHERE id=?", (row["id"],))
                         continue
-                    if response.status_code != 200 or not is_probably_html(response):
-                        continue
-                    if len(response.content) > MAX_HTML_BYTES:
+                    if response.status_code != 200 or not is_probably_html(response) or len(response.content) > MAX_HTML_BYTES:
+                        with connect_db() as db:
+                            db.execute("UPDATE crawl_queue SET status='skipped',last_error=? WHERE id=?", (f"HTTP {response.status_code} or unsupported/oversized content", row["id"]))
                         continue
                     title, desc, body, canonical, links = extract_page(str(response.url), response.text)
                     if not body and not title:
+                        with connect_db() as db:
+                            db.execute("UPDATE crawl_queue SET status='skipped',last_error='empty page' WHERE id=?", (row["id"],))
                         continue
                     save_page(str(response.url), title, desc, body, response.status_code, canonical)
+                    with connect_db() as db:
+                        db.execute("UPDATE crawl_queue SET status='done',last_error=NULL WHERE id=?", (row["id"],))
+                        now = datetime.now(timezone.utc).isoformat()
+                        for link in links:
+                            db.execute("INSERT OR IGNORE INTO crawl_queue(url,status,discovered_at) VALUES(?, 'pending', ?)", (link, now))
                     indexed += 1
-                    # Prioritize links from this page but bound the frontier to keep a crawl run finite.
-                    for link in links:
-                        if link not in seen and len(queue) < 3000:
-                            queue.append(link)
-                except (httpx.HTTPError, UnicodeError, ValueError):
-                    continue
+                    with STATUS_LOCK:
+                        CRAWL_STATUS["pages_indexed"] = indexed
+                except (httpx.HTTPError, UnicodeError, ValueError) as exc:
+                    attempts = int(row["attempts"]) + 1
+                    status = "pending" if attempts < 3 else "skipped"
+                    with connect_db() as db:
+                        db.execute("UPDATE crawl_queue SET status=?,attempts=?,last_error=? WHERE id=?", (status, attempts, str(exc)[:300], row["id"]))
         with STATUS_LOCK:
             CRAWL_STATUS["pages_indexed"] = indexed
             CRAWL_STATUS["finished_at"] = datetime.now(timezone.utc).isoformat()
