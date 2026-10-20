@@ -1,6 +1,11 @@
 name: Grow Seek's web index
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/crawl_static.py"
+      - ".github/workflows/crawl-index.yml"
   workflow_dispatch:
     inputs:
       max_pages:
