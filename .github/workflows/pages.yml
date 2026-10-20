@@ -28,6 +28,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate homepage JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>([\\s\\S]*?)</script>", html)
+          if not scripts:
+              raise SystemExit("No inline application script found")
+          Path("/tmp/seek-inline.js").write_text(scripts[-1], encoding="utf-8")
+          PY
+          node --check /tmp/seek-inline.js
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
