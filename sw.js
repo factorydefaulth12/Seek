@@ -1,4 +1,4 @@
-const CACHE='seek-shell-v4';
+const CACHE='seek-shell-v5';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./opensearch.xml','./seek-index.json'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
