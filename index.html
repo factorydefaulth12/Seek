@@ -22,6 +22,13 @@
 .settings-modal{max-width:540px}.settings-modal>p{margin-bottom:20px;color:var(--muted)}.settings-section{padding:15px 0 18px;border-bottom:1px solid var(--line)}.settings-section h3{font-size:15px;margin:0 0 14px;color:var(--text)}.settings-modal .form-row{margin:12px 0}.settings-modal .form-row small,.settings-advanced summary small{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:5px}.settings-advanced{margin-top:16px;border:1px solid var(--line);border-radius:13px;padding:14px;background:var(--panel2)}.settings-advanced summary{cursor:pointer;list-style:none;font-weight:650;color:var(--text)}.settings-advanced summary::-webkit-details-marker{display:none}.settings-advanced summary:after{content:'＋';float:right;color:var(--muted)}.settings-advanced[open] summary:after{content:'−'}.settings-help{font-size:13px;line-height:1.55;color:var(--muted);margin:14px 0}.settings-advanced .warning{font-size:12px;line-height:1.5;margin-top:14px}.settings-modal .modal-actions{margin-top:20px}
 
 .seek-video-card{min-width:0;border:1px solid var(--line);border-radius:15px;padding:10px;margin:12px 0;background:var(--panel)}.seek-video{display:block;width:100%;max-height:360px;border-radius:10px;background:#000}.seek-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.seek-media-card{min-width:0;border:1px solid var(--line);border-radius:15px;padding:10px;background:var(--panel)}.seek-media-image-link{display:block;overflow:hidden;border-radius:10px;background:var(--panel2)}.seek-media-image{display:block;width:100%;height:150px;object-fit:contain}.seek-media-title{font-size:12px;line-height:1.4;margin:8px 0;overflow-wrap:anywhere}.seek-media-card>a:last-child{font-size:11px}.seek-map-frame{width:100%;height:300px;border:1px solid var(--line);border-radius:14px;margin:12px 0;background:var(--panel)}@media(max-width:600px){.seek-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seek-media-image{height:125px}}
+/* Air-inspired browser chrome: translucent, calm, separate address and search fields */
+.browser-chrome{position:sticky;top:10px;z-index:8;display:grid;grid-template-columns:auto minmax(220px,1fr) auto;align-items:center;gap:12px;margin:16px 0 0;padding:10px 12px;border:1px solid color-mix(in srgb,var(--line) 72%,transparent);border-radius:24px;background:color-mix(in srgb,var(--panel) 76%,transparent);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%);box-shadow:0 12px 38px #00000018}
+.browser-controls{display:flex;align-items:center;gap:5px}.browser-control{width:34px;height:34px;display:grid;place-items:center;border:1px solid transparent;border-radius:50%;background:#ffffff07;color:var(--text);font-size:20px;line-height:1}.browser-control:hover{border-color:var(--line);background:var(--glow)}.address-form{display:flex;align-items:center;gap:10px;min-width:0;padding:4px 5px 4px 14px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--bg) 64%,transparent);transition:border-color .15s,box-shadow .15s}.address-form:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}.address-lock{color:var(--accent2);font-size:18px}.address-form input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:8px 0;font-size:13px}.address-form input::placeholder{color:var(--muted)}.address-go{border:0;border-radius:999px;padding:8px 14px;background:var(--glow);color:var(--accent2);font-weight:750;white-space:nowrap}.address-go:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}.browser-chrome-note{font-size:11px;color:var(--muted);white-space:nowrap}
+.hero{padding-top:clamp(34px,6vh,68px)}.search-tagline{margin-bottom:20px!important}.searchbox{border-radius:999px;background:color-mix(in srgb,var(--panel) 82%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-color:color-mix(in srgb,var(--accent) 30%,var(--line));box-shadow:0 14px 48px #00000020}.searchbox .primary{border-radius:999px}.category-row{gap:8px}.tab{border-radius:999px;padding:8px 16px}
+.light .browser-chrome{background:#ffffffb8;box-shadow:0 12px 38px #34204d12}.light .address-form{background:#ffffffa8}.light .searchbox{background:#ffffffd9}
+@media(max-width:800px){.browser-chrome{grid-template-columns:auto minmax(0,1fr);gap:8px;top:4px}.browser-chrome-note{display:none}.browser-controls{gap:2px}.browser-control{width:30px;height:30px}.address-form{padding-left:10px}.address-form input{font-size:12px}.address-go{padding:8px 11px}}
+@media(max-width:430px){.browser-chrome{padding:8px;grid-template-columns:auto minmax(0,1fr)}.browser-control{width:27px;height:29px}.browser-controls{gap:0}.address-form{gap:6px}.address-go{font-size:11px;padding:8px 9px}}
 </style>
 </head>
 <body>
@@ -30,14 +37,28 @@
   <div class="brand"><span class="mark"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="13.5" cy="13.5" r="8.5" stroke="white" stroke-width="3.4"/><path d="M20 20L27 27" stroke="white" stroke-width="3.4" stroke-linecap="round"/></svg></span><span>seek<span style="color:var(--accent)">.</span></span></div>
   <div class="top-actions"><button class="pill" id="fandomNav" title="Jump to fandom themes">🎨 <span>Fandoms</span></button><button class="pill" id="installBtn">↓ <span>Install Seek</span></button><button class="pill" id="settingsBtn">⚙ <span>Customize</span></button><button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☼</button></div>
 </header>
+<div class="browser-chrome" role="region" aria-label="Seek address bar">
+  <div class="browser-controls">
+    <button type="button" class="browser-control" id="navBack" aria-label="Back" title="Back">‹</button>
+    <button type="button" class="browser-control" id="navForward" aria-label="Forward" title="Forward">›</button>
+    <button type="button" class="browser-control" id="navReload" aria-label="Reload Seek" title="Reload">↻</button>
+    <button type="button" class="browser-control" id="navHome" aria-label="Seek home" title="Seek home">⌂</button>
+  </div>
+  <form id="addressForm" class="address-form">
+    <span class="address-lock" aria-hidden="true">⌁</span>
+    <input id="addressInput" type="text" inputmode="url" autocomplete="url" spellcheck="false" aria-label="Website address" placeholder="Enter a website URL, e.g. wikipedia.org" />
+    <button type="submit" class="address-go">Open ↗</button>
+  </form>
+  <div class="browser-chrome-note">External websites open in a new tab</div>
+</div>
 <main>
 <section class="hero">
   <div class="eyebrow">Your internet, your universe</div>
   <h1>seek<span class="gradient" id="heroWord">.</span></h1>
   <p class="search-tagline">Search the web, your way.</p>
   <div class="search-wrap">
-    <form class="searchbox" id="searchForm"><span class="search-icon">⌕</span><input id="query" autocomplete="off" aria-label="Search the web" placeholder="Search or enter a URL" required><button class="primary" type="submit">Search ↗</button></form>
-    <div class="omnibox-hint">Search the web or enter a full website address</div>
+    <form class="searchbox" id="searchForm"><span class="search-icon">⌕</span><input id="query" autocomplete="off" aria-label="Search the web" placeholder="Search anything…" required><button class="primary" type="submit">Search ↗</button></form>
+    <div class="omnibox-hint">Search terms go here. Website addresses belong in the address bar above.</div>
     <div class="category-row" id="categories"><button class="tab active" data-cat="web">Web</button><button class="tab" data-cat="images">Images</button><button class="tab" data-cat="videos">Videos</button><button class="tab" data-cat="news">News</button><button class="tab" data-cat="maps">Maps</button><button class="tab" data-cat="scholar">Scholar</button></div>
     <div class="own-results" id="ownResults" hidden aria-live="polite"></div><div class="results-note" id="resultsNote">Seek searches its own growing index. Images, videos, news, maps and scholarly works appear here from their named data sources.</div>
   </div>
@@ -226,6 +247,22 @@ async function runOwnSearch(q){
    }
  }catch(err){panel.replaceChildren();empty('Could not load '+(headings[cat]||'search')+' results. '+err.message+' Check your connection and try again.')}
 }
+function normalizeAddressInput(raw){
+ let value=(raw||'').trim();if(!value)return '';
+ if(/^(javascript|data|file|vbscript):/i.test(value))throw new Error('For safety, only web addresses beginning with http:// or https:// can be opened.');
+ if(/^https?:\/\//i.test(value))return value;
+ if(value.includes(' ')||(!value.includes('.')&&!/^localhost(?::\d+)?$/i.test(value)))throw new Error('Enter a website address such as wikipedia.org, or use the main search box to search for words.');
+ return 'https://'+value;
+}
+$('#addressForm').addEventListener('submit',e=>{
+ e.preventDefault();const input=$('#addressInput');
+ try{const url=normalizeAddressInput(input.value);if(!url)return;const opened=window.open(url,'_blank','noopener,noreferrer');if(!opened)toast('Your browser blocked the new tab. Allow pop-ups for Seek, then try again.');else toast('Opening '+new URL(url).hostname+' in a new tab.');}
+ catch(err){toast(err.message)}
+});
+$('#navBack').addEventListener('click',()=>{if(history.length>1)history.back();else toast('There is no previous Seek page in this tab.')});
+$('#navForward').addEventListener('click',()=>{history.forward()});
+$('#navReload').addEventListener('click',()=>location.reload());
+$('#navHome').addEventListener('click',()=>{location.href=new URL('./',location.href).href});
 $('#searchForm').addEventListener('submit',e=>{e.preventDefault();runSearch($('#query').value)});
 
 document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save();const q=$('#query').value.trim();if(q){window.open(seekSearchUrl(q,prefs.category),'_blank','noopener,noreferrer');toast('Opened '+b.textContent.trim()+' results in a new Seek tab.')}}));
