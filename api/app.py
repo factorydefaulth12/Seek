@@ -132,16 +132,8 @@ def normalize_url(url):
             if not ip.is_global:
                 return None
         except ValueError:
-            try:
-                infos = socket.getaddrinfo(host, p.port or (443 if p.scheme == "https" else 80), type=socket.SOCK_STREAM)
-                if not infos:
-                    return None
-                for info in infos:
-                    addr = ipaddress.ip_address(info[4][0])
-                    if not addr.is_global:
-                        return None
-            except (socket.gaierror, OSError):
-                return None
+            # DNS is checked immediately before fetching, not for every discovered link.
+            pass
         path = p.path or "/"
         clean = urlunparse((p.scheme, p.netloc.lower(), path, "", p.query, ""))
         return urldefrag(clean)[0]
@@ -150,6 +142,19 @@ def normalize_url(url):
 
 def get_domain(url):
     return (urlparse(url).hostname or "").lower()
+
+def host_is_public(url):
+    host = urlparse(url).hostname or ""
+    try:
+        ip = ipaddress.ip_address(host)
+        return ip.is_global
+    except ValueError:
+        try:
+            infos = socket.getaddrinfo(host, urlparse(url).port or (443 if urlparse(url).scheme == "https" else 80), type=socket.SOCK_STREAM)
+            return bool(infos) and all(ipaddress.ip_address(info[4][0]).is_global for info in infos)
+        except (socket.gaierror, OSError, ValueError):
+            return False
+
 
 def is_probably_html(response):
     ctype = response.headers.get("content-type", "").lower()
@@ -239,6 +244,10 @@ def crawl_worker(max_pages=80, extra_seeds=None):
                         db.execute("UPDATE crawl_queue SET status='skipped',last_error='unsafe or invalid URL' WHERE id=?", (row["id"],))
                     continue
                 domain = get_domain(url)
+                if not host_is_public(url):
+                    with connect_db() as db:
+                        db.execute("UPDATE crawl_queue SET status='skipped',last_error='host did not resolve to public IP addresses' WHERE id=?", (row["id"],))
+                    continue
                 if not robots_allowed(client, url, robots_cache):
                     with connect_db() as db:
                         db.execute("UPDATE crawl_queue SET status='skipped',last_error='disallowed by robots.txt or robots.txt unavailable' WHERE id=?", (row["id"],))
