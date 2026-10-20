@@ -136,7 +136,7 @@ function verticalUrl(q,cat){const u=new URL('./',location.href);u.searchParams.s
 function isWebsiteAddress(value){const v=value.trim();if(!v||v.includes(' '))return false;try{const candidate=new URL(v.includes('://')?v:'https://'+v);return (candidate.protocol==='http:'||candidate.protocol==='https:')&&(candidate.hostname==='localhost'||candidate.hostname.includes('.'))}catch{return false}}
 function normalizedWebsiteAddress(value){return value.includes('://')?value:'https://'+value}
 function seekSearchUrl(q,cat){const u=new URL('./',location.href);u.searchParams.set('q',q);u.searchParams.set('cat',cat||'web');return u.href}
-function runSearch(q){q=(q||'').trim();if(!q)return;addHistory(q);if(isWebsiteAddress(q)){window.open(normalizedWebsiteAddress(q),'_blank','noopener,noreferrer');return}runOwnSearch(q)}
+function runSearch(q){q=(q||'').trim();if(!q)return;addHistory(q);if(isWebsiteAddress(q)){window.open(normalizedWebsiteAddress(q),'_blank','noopener,noreferrer');return}window.open(seekSearchUrl(q,prefs.category),'_blank','noopener,noreferrer')}
 document.querySelectorAll('.quick[data-trail]').forEach(card=>card.addEventListener('click',()=>{const q=card.dataset.query;$('#query').value=q;$('#ownResults').scrollIntoView({behavior:'smooth',block:'nearest'});if(prefs.engine!=='seek'){runSearch(q);return}prefs.category='web';document.querySelectorAll('.tab[data-cat]').forEach(tab=>tab.classList.toggle('active',tab.dataset.cat==='web'));save();runSearch(q)}));
 async function runOwnSearch(q){
  const panel=$('#ownResults');panel.hidden=false;$('#resultsNote').hidden=true;
@@ -202,7 +202,7 @@ async function runOwnSearch(q){
 }
 $('#searchForm').addEventListener('submit',e=>{e.preventDefault();runSearch($('#query').value)});
 
-document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save();const q=$('#query').value.trim();if(q){runOwnSearch(q)}}));
+document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save();const q=$('#query').value.trim();if(q){window.open(seekSearchUrl(q,prefs.category),'_blank','noopener,noreferrer');toast('Opened '+b.textContent.trim()+' results in a new Seek tab.')}}));
 document.querySelectorAll('[data-query]').forEach(b=>b.addEventListener('click',()=>{const q=b.dataset.query;$('#query').value=q;runSearch(q)}));
 
 const fandomCatalogRaw = `
