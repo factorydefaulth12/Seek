@@ -23,8 +23,8 @@ USER_AGENT = "SeekBot/0.2 (+https://github.com/factorydefaulth12/Seek; respectfu
 MAX_PAGES = max(1, min(int(os.getenv("MAX_PAGES", "500")), 500))
 MAX_PROCESSED = MAX_PAGES * 5
 MAX_BYTES = 1_000_000
-MAX_DOCS = 10000
-TEXT_LIMIT = 1800
+MAX_DOCS = 40000
+TEXT_LIMIT = 900
 DELAY = 1.0
 SEEDS = [
     "https://en.wikipedia.org/wiki/Main_Page",
