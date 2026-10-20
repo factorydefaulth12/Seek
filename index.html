@@ -188,21 +188,31 @@ async function runOwnSearch(q){
      const documents=localResult.status==='fulfilled'?(localResult.value.results||[]):[];
      const corpusSize=Math.max(1,documents.length);
      const tokenize=value=>(String(value||'').toLowerCase().match(/[\\p{L}\\p{N}]{2,}/gu)||[]);
-     const avgLen=field=>documents.reduce((sum,d)=>sum+tokenize(d[field]).length,0)/corpusSize||1;
-     const average={title:avgLen('title'),snippet:avgLen('snippet'),text:avgLen('text'),url:avgLen('url')};
+     const fields=['title','snippet','text','url','domain'];
      const fieldWeight={title:3.8,snippet:1.8,text:1,url:0.35,domain:0.25};
-     const local=documents.map(doc=>{
+     const prepared=documents.map(doc=>{
+       const fieldsData={};
+       for(const field of fields){const words=tokenize(doc[field]);const counts=new Map();for(const word of words)counts.set(word,(counts.get(word)||0)+1);fieldsData[field]={words,counts,length:words.length};}
+       return {doc,fieldsData};
+     });
+     const average={};
+     const documentFrequency={};
+     for(const field of fields){
+       average[field]=prepared.reduce((sum,d)=>sum+d.fieldsData[field].length,0)/corpusSize||1;
+       const df=new Map();
+       for(const entry of prepared){for(const token of new Set(entry.fieldsData[field].words))df.set(token,(df.get(token)||0)+1)}
+       documentFrequency[field]=df;
+     }
+     const local=prepared.map(({doc,fieldsData})=>{
        let score=0;
-       for(const field of Object.keys(fieldWeight)){
-         const words=tokenize(field==='domain'?(doc.domain||''):doc[field]);
-         if(!words.length)continue;
-         const counts=new Map();for(const word of words)counts.set(word,(counts.get(word)||0)+1);
-         const length=words.length,mean=average[field]||average.text||1;
+       for(const field of fields){
+         const data=fieldsData[field],mean=average[field]||1;
+         if(!data.length)continue;
          for(const token of tokens){
-           const tf=counts.get(token)||0;if(!tf)continue;
-           let df=0;for(const candidate of documents){if(tokenize(field==='domain'?(candidate.domain||''):candidate[field]).includes(token))df++}
+           const tf=data.counts.get(token)||0;if(!tf)continue;
+           const df=documentFrequency[field].get(token)||0;
            const idf=Math.log(1+(corpusSize-df+0.5)/(df+0.5));
-           score+=fieldWeight[field]*idf*((tf*2.2)/(tf+1.2*(0.25+0.75*length/mean)));
+           score+=fieldWeight[field]*idf*((tf*2.2)/(tf+1.2*(0.25+0.75*data.length/mean)));
          }
        }
        const title=String(doc.title||'').toLowerCase();
