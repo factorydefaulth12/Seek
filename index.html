@@ -182,7 +182,7 @@ async function runOwnSearch(q){
      const tokens=(query.toLowerCase().match(/[\p{L}\p{N}]{2,}/gu)||[]).filter(t=>!stopWords.has(t));
      if(!tokens.length){panel.replaceChildren();empty('Type a few meaningful words to search.');return}
      const [localResult,wikiResult]=await Promise.allSettled([
-       fetch('./seek-index.json?updated=v3').then(r=>{if(!r.ok)throw new Error('Seek index unavailable');return r.json()}),
+       fetch('./seek-index.json?updated=v4').then(r=>{if(!r.ok)throw new Error('Seek index unavailable');return r.json()}),
        fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(query)+'&srnamespace=0&srlimit=10&format=json&origin=*').then(r=>{if(!r.ok)throw new Error('Independent reference search unavailable');return r.json()})
      ]);
      const documents=localResult.status==='fulfilled'?(localResult.value.results||[]):[];
@@ -1712,7 +1712,7 @@ $('#chatForm').addEventListener('submit',e=>{e.preventDefault();const q=$('#chat
 applyTheme();renderFandoms();renderHistory();updateAiStatus();
 document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===prefs.category));
 const installBtn=$('#installBtn');let installPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.hidden=false});installBtn.addEventListener('click',async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.hidden=true}else toast('In Chrome, open ⋮ menu → Cast, save, and share → Install page as app, if available.')});window.addEventListener('appinstalled',()=>{installBtn.hidden=true;toast('Seek is installed on this device ✨')});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=4',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 const initialParams=new URLSearchParams(location.search);const initialQuery=initialParams.get('q');const initialCategory=initialParams.get('cat');if(['web','images','videos','news','maps','scholar'].includes(initialCategory)){prefs.category=initialCategory;document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===prefs.category));save()}if(initialQuery){$('#query').value=initialQuery;addHistory(initialQuery);runOwnSearch(initialQuery)}
 })();
 </script>
