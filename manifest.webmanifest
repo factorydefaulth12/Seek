@@ -1,0 +1,24 @@
+{
+  "name": "Seek Search",
+  "short_name": "Seek",
+  "description": "Your customizable fandom-powered search engine.",
+  "start_url": "./?source=installed",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#100d18",
+  "theme_color": "#a18aff",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
