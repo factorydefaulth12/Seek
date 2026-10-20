@@ -81,6 +81,7 @@ const $=s=>document.querySelector(s);
 const storageKey='seek.preferences.v1',historyKey='seek.history.v1';
 const presets=['Arcane','The Legend of Korra','Avatar: The Last Airbender','Marvel','DC','Star Wars','Harry Potter','Percy Jackson','The Owl House','She-Ra','The Locked Tomb','Six of Crows','Stranger Things','Doctor Who','Genshin Impact','Honkai: Star Rail','Minecraft','Sonic','Pokémon','Studio Ghibli','Critical Role','K-pop','Webtoons','Original fiction'];
 let prefs=read(storageKey,{engine:'duck',category:'web',theme:'violet',fandoms:['Arcane','The Legend of Korra'],provider:'openrouter',endpoint:'https://openrouter.ai/api/v1/chat/completions',model:'openai/gpt-4o-mini',apiBase:'https://seek-engine-api.onrender.com'});
+if(!prefs.apiBase)prefs.apiBase='https://seek-engine-api.onrender.com';
 let history=read(historyKey,[]),busy=false;
 function read(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(prefs));localStorage.setItem(historyKey,JSON.stringify(history.slice(0,12)))}catch{}}
