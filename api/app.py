@@ -192,10 +192,11 @@ def robots_allowed(client, url, cache):
                 parser.set_url(robots_url)
                 parser.parse(resp.text[:200_000].splitlines())
                 cache[origin] = parser
-            elif resp.status_code in (401, 403):
-                cache[origin] = False
-            else:
+            elif resp.status_code in (404, 410):
                 cache[origin] = None
+            else:
+                # Fail closed on redirects, rate limits, and server errors rather than guessing.
+                cache[origin] = False
         except Exception:
             # If robots.txt cannot be reached, skip this origin rather than guessing.
             cache[origin] = False
