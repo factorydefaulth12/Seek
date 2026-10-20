@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: seek-engine-api
+    runtime: python
+    plan: starter
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    disk:
+      name: seek-index
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: SEEK_DB_PATH
+        value: /var/data/seek.db
+      - key: SEEK_CRAWL_TOKEN
+        generateValue: true
