@@ -1,0 +1,37 @@
+name: Check Seek search API
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "api/**"
+      - ".github/workflows/api-check.yml"
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API dependencies
+        run: pip install -r api/requirements.txt
+      - name: Check Python syntax
+        run: python -m compileall -q api
+      - name: Smoke-test API startup
+        env:
+          SEEK_DB_PATH: /tmp/seek-smoke-test.db
+          SEEK_CRAWL_TOKEN: test-only-token
+        run: |
+          python -c "import sys; sys.path.insert(0, 'api'); import app; assert app.health()['ok']; print('Seek API startup passed')"
