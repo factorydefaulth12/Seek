@@ -1,0 +1,37 @@
+name: Grow Seek's web index
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_pages:
+        description: Maximum pages for this crawl run (1-200)
+        required: false
+        default: "80"
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Start a respectful crawl
+        env:
+          SEEK_API_URL: ${{ secrets.SEEK_API_URL }}
+          SEEK_CRAWL_TOKEN: ${{ secrets.SEEK_CRAWL_TOKEN }}
+          MAX_PAGES: ${{ inputs.max_pages || '80' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SEEK_API_URL:-}" ] || [ -z "${SEEK_CRAWL_TOKEN:-}" ]; then
+            echo "Set repository Actions secrets SEEK_API_URL and SEEK_CRAWL_TOKEN first."
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error --max-time 30 \
+            -X POST "${SEEK_API_URL%/}/admin/crawl" \
+            -H "Authorization: Bearer ${SEEK_CRAWL_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"max_pages\": ${MAX_PAGES:-80}, \"seed_urls\": []}"
+          echo
