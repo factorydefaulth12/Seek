@@ -36,7 +36,7 @@
   </div>
 </section>
 <section class="section fandom-style-panel" id="fandomStyle">
-  <div class="section-head"><div><h2>🎨 Make Seek your fandom</h2><div class="muted small">Tap a chibi to change the colours and save that universe to your constellation.</div></div><button class="mini-btn" id="editFandoms">More fandoms</button></div>
+  <div class="section-head"><div><h2>🎨 Make Seek your fandom</h2><div class="muted small">Tap a chibi to change the colours and save that universe to your constellation.</div></div><button class="mini-btn" id="fandomJump">More fandoms</button></div>
   <div class="mascot-grid" id="mascotGrid" aria-label="Choose a fandom theme">
     <button class="mascot-card" data-mascot="korra" aria-pressed="false"><span class="mascot-avatar korra">🌊🧑🏽‍🦱</span><strong>Korra</strong><span>Water Tribe blues</span></button>
     <button class="mascot-card" data-mascot="luffy" aria-pressed="false"><span class="mascot-avatar luffy">🏴‍☠️🍖</span><strong>Luffy</strong><span>Straw Hat sunset</span></button>
@@ -118,7 +118,7 @@ document.querySelectorAll('[data-engine]').forEach(b=>b.addEventListener('click'
 document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save()}));
 document.querySelectorAll('[data-query]').forEach(b=>b.addEventListener('click',()=>{const q=b.dataset.query;$('#query').value=q;runSearch(q)}));
 $('#fandomForm').addEventListener('submit',e=>{e.preventDefault();const f=$('#fandomInput').value.trim();if(!f)return;if(prefs.fandoms.some(x=>x.toLowerCase()===f.toLowerCase())){toast('That star is already in your constellation.');return}prefs.fandoms.push(f);prefs.fandoms=prefs.fandoms.slice(-40);$('#fandomInput').value='';save();renderFandoms();toast('Added '+f+' to your constellation ✦')});
-$('#editFandoms').addEventListener('click',()=>{$('#fandomInput').focus();$('#fandomInput').scrollIntoView({behavior:'smooth',block:'center'})});
+$('#editFandoms, #fandomJump').forEach;document.querySelectorAll('#editFandoms, #fandomJump').forEach(b=>b.addEventListener('click',()=>{$('#fandomInput').focus();$('#fandomInput').scrollIntoView({behavior:'smooth',block:'center'})}));
 $('#clearHistory').addEventListener('click',()=>{history=[];save();renderHistory();toast('Search history cleared.')});
 $('#themeBtn').addEventListener('click',()=>{prefs.fandomTheme='';prefs.theme=prefs.theme==='light'?'violet':'light';applyTheme();save()});
 document.querySelectorAll('[data-mascot]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.mascot;const names={korra:'The Legend of Korra',luffy:'One Piece',chopper:'One Piece',zoro:'One Piece',nami:'One Piece',jinx:'Arcane',vi:'Arcane',ghibli:'Studio Ghibli'};prefs.fandomTheme=key;prefs.fandoms=prefs.fandoms.filter(x=>x!==names[key]);prefs.fandoms.push(names[key]);prefs.fandoms=prefs.fandoms.slice(-40);prefs.theme='violet';save();applyTheme();renderFandoms();$('#mascotStatus').textContent='Theme changed! '+names[key]+' is now in your fandom constellation. ✨';toast('Your '+names[key]+' theme is on!') }));
