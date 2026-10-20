@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       max_pages:
-        description: Maximum pages to index in this run (1-500)
+        description: Pages to add in this run (1-500). Seek is growing toward 40,000 total pages
         required: false
         default: "500"
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 */2 * * *"
 
 permissions:
   contents: write
