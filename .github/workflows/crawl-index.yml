@@ -4,34 +4,47 @@ on:
   workflow_dispatch:
     inputs:
       max_pages:
-        description: Maximum pages for this crawl run (1-200)
+        description: Maximum pages to index in this run (1-100)
         required: false
-        default: "80"
+        default: "40"
   schedule:
     - cron: "17 */6 * * *"
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: seek-crawl-index
+  cancel-in-progress: false
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
-      - name: Start a respectful crawl
+      - name: Checkout the current index and frontier
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install crawler dependencies
+        run: pip install httpx beautifulsoup4
+      - name: Crawl public pages and update Seek's index
         env:
-          SEEK_API_URL: ${{ secrets.SEEK_API_URL }}
-          SEEK_CRAWL_TOKEN: ${{ secrets.SEEK_CRAWL_TOKEN }}
-          MAX_PAGES: ${{ inputs.max_pages || '80' }}
+          MAX_PAGES: ${{ inputs.max_pages || '40' }}
+        run: python scripts/crawl_static.py
+      - name: Commit the updated index and crawl frontier
         run: |
           set -euo pipefail
-          if [ -z "${SEEK_API_URL:-}" ] || [ -z "${SEEK_CRAWL_TOKEN:-}" ]; then
-            echo "Set repository Actions secrets SEEK_API_URL and SEEK_CRAWL_TOKEN first."
-            exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add seek-index.json seek-frontier.json
+          if git diff --cached --quiet; then
+            echo "No index changes to commit."
+            exit 0
           fi
-          curl --fail-with-body --silent --show-error --max-time 30 \
-            -X POST "${SEEK_API_URL%/}/admin/crawl" \
-            -H "Authorization: Bearer ${SEEK_CRAWL_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{\"max_pages\": ${MAX_PAGES:-80}, \"seed_urls\": []}"
-          echo
+          git commit -m "Grow Seek public web index"
+          git push origin HEAD:main
