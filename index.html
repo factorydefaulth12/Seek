@@ -65,7 +65,7 @@
 <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal">
   <h2 id="settingsTitle">Make Seek yours</h2><p>Set your vibe, fandom context, and optional AI connection.</p>
   <div class="form-row"><label for="themeSelect">Colour mood</label><select class="field" id="themeSelect"><option value="violet">Starlit Violet</option><option value="rose">Rosewater</option><option value="forest">Enchanted Forest</option><option value="midnight">Midnight</option><option value="light">Daylight</option></select></div>
-  <div class="form-row"><label for="apiBaseInput">Seek Search API URL</label><input class="field" id="apiBaseInput" value="https://seek-engine-api.onrender.com" placeholder="https://your-seek-api.onrender.com"></div>
+  <div class="form-row"><label for="apiBaseInput">Seek Search API URL</label><input class="field" id="apiBaseInput" value="" placeholder="Optional: https://your-seek-api.onrender.com"></div>
   <div class="form-row"><label for="providerSelect">AI-compatible provider</label><select class="field" id="providerSelect"><option value="openrouter">OpenRouter (many models)</option><option value="openai">OpenAI API</option><option value="custom">Custom OpenAI-compatible endpoint</option></select></div>
   <div class="form-row"><label for="endpointInput">API endpoint</label><input class="field" id="endpointInput" value="https://openrouter.ai/api/v1/chat/completions" placeholder="https://…/chat/completions"></div>
   <div class="form-row"><label for="modelInput">Model ID</label><input class="field" id="modelInput" value="openai/gpt-4o-mini" placeholder="Provider model ID"></div>
@@ -80,8 +80,8 @@
 const $=s=>document.querySelector(s);
 const storageKey='seek.preferences.v1',historyKey='seek.history.v1';
 const presets=['Arcane','The Legend of Korra','Avatar: The Last Airbender','Marvel','DC','Star Wars','Harry Potter','Percy Jackson','The Owl House','She-Ra','The Locked Tomb','Six of Crows','Stranger Things','Doctor Who','Genshin Impact','Honkai: Star Rail','Minecraft','Sonic','Pokémon','Studio Ghibli','Critical Role','K-pop','Webtoons','Original fiction'];
-let prefs=read(storageKey,{engine:'duck',category:'web',theme:'violet',fandoms:['Arcane','The Legend of Korra'],provider:'openrouter',endpoint:'https://openrouter.ai/api/v1/chat/completions',model:'openai/gpt-4o-mini',apiBase:'https://seek-engine-api.onrender.com'});
-if(!prefs.apiBase)prefs.apiBase='https://seek-engine-api.onrender.com';
+let prefs=read(storageKey,{engine:'seek',category:'web',theme:'violet',fandoms:['Arcane','The Legend of Korra'],provider:'openrouter',endpoint:'https://openrouter.ai/api/v1/chat/completions',model:'openai/gpt-4o-mini',apiBase:''});
+if(prefs.apiBase==='https://seek-engine-api.onrender.com')prefs.apiBase='';
 let history=read(historyKey,[]),busy=false;
 function read(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(prefs));localStorage.setItem(historyKey,JSON.stringify(history.slice(0,12)))}catch{}}
@@ -102,7 +102,7 @@ $('#fandomForm').addEventListener('submit',e=>{e.preventDefault();const f=$('#fa
 $('#editFandoms').addEventListener('click',()=>{$('#fandomInput').focus();$('#fandomInput').scrollIntoView({behavior:'smooth',block:'center'})});
 $('#clearHistory').addEventListener('click',()=>{history=[];save();renderHistory();toast('Search history cleared.')});
 $('#themeBtn').addEventListener('click',()=>{prefs.theme=prefs.theme==='light'?'violet':'light';applyTheme();save()});
-function openSettings(){ $('#themeSelect').value=prefs.theme;$('#apiBaseInput').value=prefs.apiBase||'https://seek-engine-api.onrender.com';$('#providerSelect').value=prefs.provider;$('#endpointInput').value=prefs.endpoint;$('#modelInput').value=prefs.model;$('#keyInput').value=sessionStorage.getItem('seek.apiKey')||'';$('#settingsModal').classList.add('open')}
+function openSettings(){ $('#themeSelect').value=prefs.theme;$('#apiBaseInput').value=prefs.apiBase||'';$('#providerSelect').value=prefs.provider;$('#endpointInput').value=prefs.endpoint;$('#modelInput').value=prefs.model;$('#keyInput').value=sessionStorage.getItem('seek.apiKey')||'';$('#settingsModal').classList.add('open')}
 function closeSettings(){$('#settingsModal').classList.remove('open')}
 $('#settingsBtn').addEventListener('click',openSettings);$('#cancelSettings').addEventListener('click',closeSettings);$('#settingsModal').addEventListener('click',e=>{if(e.target===$('#settingsModal'))closeSettings()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
 $('#saveSettings').addEventListener('click',()=>{prefs.theme=$('#themeSelect').value;prefs.apiBase=$('#apiBaseInput').value.trim().replace(/\/$/,'');prefs.provider=$('#providerSelect').value;prefs.endpoint=$('#endpointInput').value.trim();prefs.model=$('#modelInput').value.trim();const key=$('#keyInput').value.trim();if(key)sessionStorage.setItem('seek.apiKey',key);else sessionStorage.removeItem('seek.apiKey');save();applyTheme();updateAiStatus();closeSettings();toast('Your Seek settings are saved.')});
