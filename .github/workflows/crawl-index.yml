@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       max_pages:
-        description: Maximum pages to index in this run (1-100)
+        description: Maximum pages to index in this run (1-500)
         required: false
-        default: "40"
+        default: "500"
   schedule:
     - cron: "17 */6 * * *"
 
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - name: Checkout the current index and frontier
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         run: pip install httpx beautifulsoup4
       - name: Crawl public pages and update Seek's index
         env:
-          MAX_PAGES: ${{ inputs.max_pages || '40' }}
+          MAX_PAGES: ${{ inputs.max_pages || '500' }}
         run: python scripts/crawl_static.py
       - name: Commit the updated index and crawl frontier
         run: |
