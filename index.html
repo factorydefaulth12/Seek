@@ -299,8 +299,14 @@ function normalizeAddressInput(raw){
 }
 $('#addressForm').addEventListener('submit',e=>{
  e.preventDefault();const input=$('#addressInput');
- try{const url=normalizeAddressInput(input.value);if(!url)return;const opened=window.open(url,'_blank','noopener,noreferrer');if(!opened)toast('Your browser blocked the new tab. Allow pop-ups for Seek, then try again.');else toast('Opening '+new URL(url).hostname+' in a new tab.');}
- catch(err){toast(err.message)}
+ try{
+  const url=normalizeAddressInput(input.value);if(!url)return;
+  const destination=new URL(url);
+  if(!['http:','https:'].includes(destination.protocol))throw new Error('Only HTTP and HTTPS website addresses can be opened.');
+  const opened=window.open(url,'_blank');
+  if(opened){opened.opener=null;toast('Opening '+destination.hostname+' directly in a new tab.');}
+  else{toast('Your browser blocked the new tab. Opening '+destination.hostname+' here instead.');location.assign(url);}
+ }catch(err){toast(err.message)}
 });
 $('#navBack').addEventListener('click',()=>{if(history.length>1)history.back();else toast('There is no previous Seek page in this tab.')});
 $('#navForward').addEventListener('click',()=>{history.forward()});
