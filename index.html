@@ -1509,7 +1509,7 @@ function renderFandomCatalog(){
 }
 $('#fandomCatalogSearch').addEventListener('input',()=>{fandomVisibleLimit=48;renderFandomCatalog()});
 $('#loadMoreFandoms').addEventListener('click',()=>{fandomVisibleLimit+=48;renderFandomCatalog()});
-$('#fandomCatalogSearch').addEventListener('input',()=>{fandomVisibleLimit=48;renderFandomCatalog()});
+
 document.querySelectorAll('[data-fandom-filter]').forEach(b=>b.addEventListener('click',()=>{fandomFilter=b.dataset.fandomFilter;document.querySelectorAll('[data-fandom-filter]').forEach(x=>x.classList.toggle('active',x===b));renderFandomCatalog()}));
 $('#searchFandomOfficial').addEventListener('click',()=>{const q=$('#fandomCatalogSearch').value.trim();const url=q?'https://www.fandom.com/search?query='+encodeURIComponent(q):'https://www.fandom.com/explore';window.open(url,'_blank','noopener,noreferrer')});
 renderFandomCatalog();
