@@ -157,8 +157,8 @@ function verticalUrl(q,cat){const u=new URL('./',location.href);u.searchParams.s
 function isWebsiteAddress(value){const v=value.trim();if(!v||v.includes(' '))return false;try{const candidate=new URL(v.includes('://')?v:'https://'+v);return (candidate.protocol==='http:'||candidate.protocol==='https:')&&(candidate.hostname==='localhost'||candidate.hostname.includes('.'))}catch{return false}}
 function normalizedWebsiteAddress(value){return value.includes('://')?value:'https://'+value}
 function seekSearchUrl(q,cat){const u=new URL('./',location.href);u.searchParams.set('q',q);u.searchParams.set('cat',cat||'web');return u.href}
-function runSearch(q){q=(q||'').trim();if(!q)return;addHistory(q);if(isWebsiteAddress(q)){window.open(normalizedWebsiteAddress(q),'_blank','noopener,noreferrer');return}window.open(seekSearchUrl(q,prefs.category),'_blank','noopener,noreferrer')}
-document.querySelectorAll('.quick[data-trail]').forEach(card=>card.addEventListener('click',()=>{const q=card.dataset.query;$('#query').value=q;$('#ownResults').scrollIntoView({behavior:'smooth',block:'nearest'});if(prefs.engine!=='seek'){runSearch(q);return}prefs.category='web';document.querySelectorAll('.tab[data-cat]').forEach(tab=>tab.classList.toggle('active',tab.dataset.cat==='web'));save();runSearch(q)}));
+function runSearch(q){q=(q||'').trim();if(!q)return;addHistory(q);runOwnSearch(q);$('#ownResults').scrollIntoView({behavior:'smooth',block:'nearest'});}
+document.querySelectorAll('.quick[data-trail]').forEach(card=>card.addEventListener('click',()=>{const q=card.dataset.query;$('#query').value=q;prefs.category='web';document.querySelectorAll('.tab[data-cat]').forEach(tab=>tab.classList.toggle('active',tab.dataset.cat==='web'));save();runSearch(q)}));
 async function runOwnSearch(q){
  const panel=$('#ownResults');panel.hidden=false;$('#resultsNote').hidden=true;
  const cat=prefs.category||'web',query=(q||'').trim();
@@ -265,7 +265,7 @@ $('#navReload').addEventListener('click',()=>location.reload());
 $('#navHome').addEventListener('click',()=>{location.href=new URL('./',location.href).href});
 $('#searchForm').addEventListener('submit',e=>{e.preventDefault();runSearch($('#query').value)});
 
-document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save();const q=$('#query').value.trim();if(q){window.open(seekSearchUrl(q,prefs.category),'_blank','noopener,noreferrer');toast('Opened '+b.textContent.trim()+' results in a new Seek tab.')}}));
+document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save();const q=$('#query').value.trim();if(q)runOwnSearch(q)}));
 document.querySelectorAll('[data-query]').forEach(b=>b.addEventListener('click',()=>{const q=b.dataset.query;$('#query').value=q;runSearch(q)}));
 
 const fandomCatalogRaw = `
@@ -1670,7 +1670,7 @@ applyTheme();renderFandoms();renderHistory();updateAiStatus();
 document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===prefs.category));
 const installBtn=$('#installBtn');let installPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.hidden=false});installBtn.addEventListener('click',async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.hidden=true}else toast('In Chrome, open ⋮ menu → Cast, save, and share → Install page as app, if available.')});window.addEventListener('appinstalled',()=>{installBtn.hidden=true;toast('Seek is installed on this device ✨')});
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
-const initialParams=new URLSearchParams(location.search);const initialQuery=initialParams.get('q');const initialCategory=initialParams.get('cat');if(['web','images','videos','news','maps','scholar'].includes(initialCategory)){prefs.category=initialCategory;document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===prefs.category));save()}if(initialQuery){$('#query').value=initialQuery;addHistory(initialQuery);if(prefs.category==='web')runOwnSearch(initialQuery);else runOwnSearch(initialQuery)}
+const initialParams=new URLSearchParams(location.search);const initialQuery=initialParams.get('q');const initialCategory=initialParams.get('cat');if(['web','images','videos','news','maps','scholar'].includes(initialCategory)){prefs.category=initialCategory;document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===prefs.category));save()}if(initialQuery){$('#query').value=initialQuery;addHistory(initialQuery);runOwnSearch(initialQuery)}
 })();
 </script>
 </body>
