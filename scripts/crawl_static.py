@@ -105,9 +105,18 @@ def main():
     frontier_data = load_json(FRONTIER_PATH, {"pending": SEEDS, "seen": []})
     seen = set(frontier_data.get("seen", [])) | set(docs)
     queue = deque()
-    for item in frontier_data.get("pending", []) + SEEDS:
+    queued = set()
+    # Pending URLs are already in seen by design; re-queue them after workflow restarts.
+    for item in frontier_data.get("pending", []):
         url = normalize(item)
-        if url and url not in seen:
+        if url and url not in queued:
+            queued.add(url)
+            seen.add(url)
+            queue.append(url)
+    for item in SEEDS:
+        url = normalize(item)
+        if url and url not in seen and url not in queued:
+            queued.add(url)
             seen.add(url)
             queue.append(url)
     robots_cache = {}
@@ -171,6 +180,8 @@ def main():
                     if candidate and candidate not in seen:
                         seen.add(candidate)
                         links.append(candidate)
+                        if len(links) >= 500:
+                            break
                 docs[str(response.url)] = {
                     "url": str(response.url),
                     "domain": urlparse(str(response.url)).hostname or "",
