@@ -52,6 +52,16 @@
   </div>
   <div class="status" id="mascotStatus">Your pick changes Seek’s colours and saves the fandom to your profile on this device.</div>
 </section>
+<section class="section panel fandom-explorer" id="fandomExplorer" aria-labelledby="exploreFandomHeading">
+  <div class="section-head"><div><h2 id="exploreFandomHeading">🌌 The fandom multiverse</h2><div class="muted small">Search the directory, pick a universe, and give Seek its colours. Can't find it? Type literally any fandom.</div></div><a class="mini-btn fandom-official" href="https://www.fandom.com/explore" target="_blank" rel="noopener noreferrer">Explore Fandom ↗</a></div>
+  <div class="fandom-search-row"><label class="fandom-search-box"><span>⌕</span><input id="fandomCatalogSearch" type="search" placeholder="Search anime, games, books, shows, characters…" autocomplete="off" aria-label="Search fandom directory"></label><button class="mini-btn" id="searchFandomOfficial" type="button">Search all Fandom ↗</button></div>
+  <div class="fandom-filter-row" id="fandomFilters" aria-label="Filter fandoms">
+    <button class="fandom-filter active" data-fandom-filter="All">✦ All</button><button class="fandom-filter" data-fandom-filter="Anime">Anime</button><button class="fandom-filter" data-fandom-filter="Animation">Animation</button><button class="fandom-filter" data-fandom-filter="TV & Film">TV & Film</button><button class="fandom-filter" data-fandom-filter="Books">Books</button><button class="fandom-filter" data-fandom-filter="Games">Games</button><button class="fandom-filter" data-fandom-filter="Comics">Comics</button><button class="fandom-filter" data-fandom-filter="Music">Music</button><button class="fandom-filter" data-fandom-filter="Webtoons">Webtoons</button><button class="fandom-filter" data-fandom-filter="Other">Other</button>
+  </div>
+  <div class="fandom-catalog-meta"><span id="fandomCatalogCount">Loading fandoms…</span><span class="muted small">Your choices are saved on this device</span></div>
+  <div class="fandom-catalog-grid" id="fandomCatalogGrid" aria-live="polite"></div>
+  <div class="fandom-catalog-footer"><span class="muted small">This is a starter directory, not a claim to list every fandom ever made. Fandom itself reports hundreds of thousands of communities. Use its official explorer for the full catalogue, or add any title above.</span><a href="https://www.fandom.com/explore" target="_blank" rel="noopener noreferrer">Browse all communities ↗</a></div>
+</section>
 <section class="section">
   <div class="section-head"><h2>Little rabbit holes</h2><span class="muted small">A few doors to open</span></div>
   <div class="quick-grid">
@@ -109,7 +119,7 @@ function read(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{retur
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(prefs));localStorage.setItem(historyKey,JSON.stringify(history.slice(0,12)))}catch{}}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function applyTheme(){document.body.classList.toggle('light',prefs.theme==='light'&&!prefs.fandomTheme);const colors={violet:['#100d18','#a18aff'],rose:['#1b101a','#f0a5d0'],forest:['#0d1815','#8fe0bd'],midnight:['#090e1b','#82b9ff'],light:['#f5f1fc','#7452d6']};const fandomColors={korra:['#10202d','#6bd8e9'],luffy:['#261713','#ff9369'],chopper:['#291a2b','#f6a5d7'],zoro:['#11251b','#a7d982'],nami:['#291d11','#ffc064'],jinx:['#24132c','#d6a0ff'],vi:['#29171f','#ff91ad'],ghibli:['#14251b','#a7df94']};const [bg,accent]=fandomColors[prefs.fandomTheme]||colors[prefs.theme]||colors.violet;document.documentElement.style.setProperty('--bg',bg);document.documentElement.style.setProperty('--accent',accent);$('#themeBtn').textContent=prefs.theme==='light'?'☾':'☼';$('#themeSelect').value=prefs.theme;document.querySelectorAll('[data-mascot]').forEach(b=>{const active=b.dataset.mascot===prefs.fandomTheme;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
+function applyTheme(){document.body.classList.toggle('light',prefs.theme==='light'&&!prefs.fandomTheme);const colors={violet:['#100d18','#a18aff'],rose:['#1b101a','#f0a5d0'],forest:['#0d1815','#8fe0bd'],midnight:['#090e1b','#82b9ff'],light:['#f5f1fc','#7452d6']};const fandomColors={korra:['#10202d','#6bd8e9'],luffy:['#261713','#ff9369'],chopper:['#291a2b','#f6a5d7'],zoro:['#11251b','#a7d982'],nami:['#291d11','#ffc064'],jinx:['#24132c','#d6a0ff'],vi:['#29171f','#ff91ad'],ghibli:['#14251b','#a7df94']};const [bg,accent]=fandomColors[prefs.fandomTheme]||(prefs.fandomTheme==='custom'?fandomPalette(prefs.customFandom||''):null)||colors[prefs.theme]||colors.violet;document.documentElement.style.setProperty('--bg',bg);document.documentElement.style.setProperty('--accent',accent);$('#themeBtn').textContent=prefs.theme==='light'?'☾':'☼';$('#themeSelect').value=prefs.theme;document.querySelectorAll('[data-mascot]').forEach(b=>{const active=b.dataset.mascot===prefs.fandomTheme;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
 function renderFandoms(){const el=$('#fandomChips');el.innerHTML='';if(!prefs.fandoms.length){el.innerHTML='<span class="muted small">Your constellation is waiting for its first star.</span>';return}prefs.fandoms.forEach((f,i)=>{const b=document.createElement('button');b.className='chip';b.innerHTML=escapeHtml(f)+' <span class="x">×</span>';b.title='Remove '+f;b.addEventListener('click',()=>{prefs.fandoms.splice(i,1);save();renderFandoms()});el.appendChild(b)})}
 function renderHistory(){const el=$('#historyList');el.innerHTML='';if(!history.length){el.innerHTML='<div class="empty">Your search trail will appear here, on this device only.</div>';return}history.forEach(q=>{const b=document.createElement('button');b.className='history-item';b.innerHTML='<span class="glass">⌕</span><span>'+escapeHtml(q)+'</span>';b.addEventListener('click',()=>{ $('#query').value=q;runSearch(q)});el.appendChild(b)})}
 function addHistory(q){history=[q,...history.filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,12);save();renderHistory()}
@@ -120,8 +130,202 @@ $('#searchForm').addEventListener('submit',e=>{e.preventDefault();runSearch($('#
 document.querySelectorAll('[data-engine]').forEach(b=>b.addEventListener('click',()=>{prefs.engine=b.dataset.engine;document.querySelectorAll('[data-engine]').forEach(x=>x.classList.toggle('active',x===b));save()}));
 document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{prefs.category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));save()}));
 document.querySelectorAll('[data-query]').forEach(b=>b.addEventListener('click',()=>{const q=b.dataset.query;$('#query').value=q;runSearch(q)}));
-$('#fandomForm').addEventListener('submit',e=>{e.preventDefault();const f=$('#fandomInput').value.trim();if(!f)return;if(prefs.fandoms.some(x=>x.toLowerCase()===f.toLowerCase())){toast('That star is already in your constellation.');return}prefs.fandoms.push(f);prefs.fandoms=prefs.fandoms.slice(-40);$('#fandomInput').value='';save();renderFandoms();toast('Added '+f+' to your constellation ✦')});
-$('#fandomNav').addEventListener('click',()=>$('#fandomStyle').scrollIntoView({behavior:'smooth',block:'start'}));\ndocument.querySelectorAll('#editFandoms, #fandomJump').forEach(b=>b.addEventListener('click',()=>{$('#fandomInput').focus({preventScroll:true});$('#fandomInput').scrollIntoView({behavior:'smooth',block:'center'})}));
+
+const fandomCatalogRaw = `
+Anime|One Piece|🏴‍☠️
+Anime|Naruto|🍥
+Anime|Bleach|⚔️
+Anime|Demon Slayer|🌸
+Anime|Jujutsu Kaisen|🌀
+Anime|Chainsaw Man|🪚
+Anime|My Hero Academia|💥
+Anime|Attack on Titan|🪽
+Anime|Spy x Family|🕵️
+Anime|Sailor Moon|🌙
+Anime|Dragon Ball|🐉
+Anime|Pokémon|⚡
+Anime|Sonic the Hedgehog|💨
+Anime|Haikyuu!!|🏐
+Anime|Blue Lock|⚽
+Anime|Frieren|✨
+Anime|Studio Ghibli|🌿
+Anime|The Apothecary Diaries|🌱
+Anime|Hunter x Hunter|🎴
+Anime|Death Note|📓
+Anime|Ouran High School Host Club|🌹
+Anime|Fruits Basket|🍙
+Anime|Cardcaptor Sakura|🌸
+Anime|Violet Evergarden|✉️
+Anime|Fullmetal Alchemist|⚗️
+Anime|Tokyo Ghoul|🩸
+Anime|Black Clover|🍀
+Anime|One Punch Man|👊
+Anime|JoJo's Bizarre Adventure|⭐
+Anime|Yu-Gi-Oh!|🃏
+Animation|The Legend of Korra|🌊
+Animation|Avatar: The Last Airbender|🌪️
+Animation|Arcane|💎
+Animation|The Owl House|🦉
+Animation|She-Ra|⚔️
+Animation|The Dragon Prince|🐲
+Animation|Steven Universe|💖
+Animation|Adventure Time|🍋
+Animation|The Amazing World of Gumball|🐱
+Animation|Gravity Falls|🌲
+Animation|Amphibia|🐸
+Animation|Miraculous Ladybug|🐞
+Animation|Nimona|🦈
+Animation|The Simpsons|🍩
+Animation|SpongeBob SquarePants|🧽
+Animation|Rick and Morty|🛸
+Animation|Bluey|🐾
+Animation|My Little Pony|🦄
+Animation|Winx Club|🧚
+Animation|Teen Titans|🦸
+Animation|The Powerpuff Girls|💗
+TV & Film|Stranger Things|🚲
+TV & Film|Wednesday|🖤
+TV & Film|Doctor Who|🌀
+TV & Film|Supernatural|👻
+TV & Film|The Vampire Diaries|🩸
+TV & Film|The 100|🌌
+TV & Film|The Last of Us|🍄
+TV & Film|The Walking Dead|🧟
+TV & Film|Game of Thrones|🐉
+TV & Film|House of the Dragon|🔥
+TV & Film|Star Wars|🚀
+TV & Film|Star Trek|🖖
+TV & Film|Marvel Cinematic Universe|🦸
+TV & Film|DC Universe|🦇
+TV & Film|Harry Potter|⚡
+TV & Film|The Hunger Games|🏹
+TV & Film|Percy Jackson|🔱
+TV & Film|The Lord of the Rings|💍
+TV & Film|Dune|🏜️
+TV & Film|Jurassic Park|🦖
+TV & Film|Barbie|🎀
+TV & Film|Scream|🔪
+TV & Film|The Maze Runner|🏃
+TV & Film|The X-Files|👽
+TV & Film|Sherlock|🔎
+TV & Film|Grey's Anatomy|🩺
+TV & Film|The Good Place|☁️
+TV & Film|Bridgerton|🪭
+TV & Film|Yellowjackets|🐝
+TV & Film|Heartstopper|💛
+Books|Six of Crows|🗝️
+Books|Shadow and Bone|🌑
+Books|The Locked Tomb|💀
+Books|A Song of Ice and Fire|🐺
+Books|Throne of Glass|🗡️
+Books|ACOTAR|🌹
+Books|Red Queen|👑
+Books|The Cruel Prince|🍃
+Books|The Inheritance Games|♟️
+Books|The Percy Jackson Universe|⚡
+Books|Wings of Fire|🐉
+Books|Warrior Cats|🐈
+Books|The School for Good and Evil|🪄
+Books|The Chronicles of Narnia|🦁
+Books|The Mortal Instruments|🔮
+Books|The Selection|👗
+Books|Anne of Green Gables|🌼
+Books|Little Women|📚
+Books|Pride and Prejudice|🪶
+Books|Sherlock Holmes|🕵️
+Games|Minecraft|⛏️
+Games|Genshin Impact|✨
+Games|Honkai: Star Rail|🚂
+Games|Honkai Impact 3rd|🌠
+Games|Wuthering Waves|🌊
+Games|Zenless Zone Zero|🎧
+Games|The Sims|🏡
+Games|Roblox|🧱
+Games|Fortnite|🎯
+Games|League of Legends|⚔️
+Games|Valorant|🎯
+Games|Overwatch|🛡️
+Games|Apex Legends|🚀
+Games|Baldur's Gate 3|🐉
+Games|Dungeons & Dragons|🎲
+Games|The Legend of Zelda|🗡️
+Games|Animal Crossing|🍃
+Games|Stardew Valley|🌱
+Games|Undertale|❤️
+Games|Deltarune|♟️
+Games|Five Nights at Freddy's|🐻
+Games|Poppy Playtime|🧸
+Games|Hollow Knight|🪲
+Games|Silksong|🕸️
+Games|Elden Ring|🌕
+Games|Dark Souls|🔥
+Games|Final Fantasy|💎
+Games|Kingdom Hearts|🔑
+Games|Persona 5|🎭
+Games|Fire Emblem|🛡️
+Games|Splatoon|🦑
+Games|Super Mario|🍄
+Games|Animal Crossing|🍃
+Games|Red Dead Redemption|🤠
+Games|The Witcher|🐺
+Games|Cyberpunk 2077|🌃
+Games|Life Is Strange|📸
+Games|Detroit: Become Human|🤖
+Games|Hades|🔥
+Games|Cult of the Lamb|🐑
+Games|Sky: Children of the Light|🕯️
+Comics|Spider-Man|🕷️
+Comics|Batman|🦇
+Comics|Superman|☀️
+Comics|Wonder Woman|🛡️
+Comics|X-Men|❌
+Comics|The Avengers|💥
+Comics|Young Avengers|🌟
+Comics|Runaways|🏃
+Comics|Lumberjanes|🪓
+Comics|Heartstopper Comics|💛
+Music|BTS|💜
+Music|BLACKPINK|🖤
+Music|Stray Kids|⭐
+Music|TWICE|🍭
+Music|ATEEZ|🏴‍☠️
+Music|Taylor Swift|🪩
+Music|Billie Eilish|🕷️
+Music|Chappell Roan|🐸
+Music|Laufey|🎻
+Music|K-pop|🎤
+Webtoons|Lore Olympus|🍎
+Webtoons|The Remarried Empress|👑
+Webtoons|Operation: True Love|💌
+Webtoons|Purple Hyacinth|🪻
+Webtoons|Cursed Princess Club|👸
+Webtoons|Suitor Armor|🛡️
+Webtoons|Morgana and Oz|🦇
+Webtoons|Nevermore|🕯️
+Webtoons|Castle Swimmer|🧜
+Webtoons|The Mafia Nanny|🖤
+Other|Critical Role|🎲
+Other|Dimension 20|🎭
+Other|Danganronpa|🔪
+Other|Hetalia|🌍
+Other|Warrior Nun|⚔️
+Other|Formula 1|🏎️
+Other|WWE|💪
+Other|The Backrooms|🚪
+Other|SCP Foundation|🧪
+Other|Lego|🧱
+`;
+const fandomCatalog = fandomCatalogRaw.trim().split('\n').map(line=>{const [category,name,emoji]=line.split('|');return {category,name,emoji}});
+let fandomFilter='All';
+function fandomPalette(name){const palettes=[['#16283b','#65c6e8'],['#2a1724','#ff8bb8'],['#17291f','#8fdda6'],['#2d2114','#f5bd62'],['#21182f','#b6a0ff'],['#2b1715','#ff8a69'],['#172b2d','#75ddd0'],['#2b1b34','#e3a4ff'],['#28251a','#e7dc83'],['#18233a','#91b6ff']];let h=0;for(const ch of name.toLowerCase())h=(h*31+ch.charCodeAt(0))>>>0;return palettes[h%palettes.length]}
+function selectFandomTheme(name,emoji){const existing=prefs.fandoms.some(x=>x.toLowerCase()===name.toLowerCase());prefs.fandomTheme='custom';prefs.customFandom=name;prefs.customFandomEmoji=emoji||'✨';prefs.fandoms=prefs.fandoms.filter(x=>x.toLowerCase()!==name.toLowerCase());prefs.fandoms.push(name);prefs.fandoms=prefs.fandoms.slice(-40);prefs.theme='violet';save();applyTheme();renderFandoms();renderFandomCatalog();$('#mascotStatus').textContent='Theme applied: '+name+'. Your fandom has been added to your constellation. ✨';toast(existing?'Theme updated to '+name:'Added '+name+' and applied its theme')}
+function renderFandomCatalog(){const grid=$('#fandomCatalogGrid');if(!grid)return;const q=$('#fandomCatalogSearch').value.trim().toLowerCase();const matches=fandomCatalog.filter(f=>(fandomFilter==='All'||f.category===fandomFilter)&&(!q||(f.name+' '+f.category).toLowerCase().includes(q)));grid.innerHTML='';const customAlready=fandomCatalog.some(f=>f.name.toLowerCase()===q);if(q&&!customAlready){const card=document.createElement('button');card.type='button';card.className='fandom-entry custom-entry';const [bg,accent]=fandomPalette(q);card.style.setProperty('--tile-bg',bg);card.style.setProperty('--tile-accent',accent);card.innerHTML='<span class="fandom-art">✦</span><strong>Use “'+escapeHtml($('#fandomCatalogSearch').value.trim())+'”</strong><small>Custom fandom · create its theme</small>';card.addEventListener('click',()=>selectFandomTheme($('#fandomCatalogSearch').value.trim(),'✦'));grid.appendChild(card)}matches.slice(0,180).forEach(f=>{const card=document.createElement('button');card.type='button';card.className='fandom-entry';const [bg,accent]=fandomPalette(f.name);card.style.setProperty('--tile-bg',bg);card.style.setProperty('--tile-accent',accent);const selected=prefs.fandoms.some(x=>x.toLowerCase()===f.name.toLowerCase());card.classList.toggle('selected',selected);card.innerHTML='<span class="fandom-art">'+f.emoji+'</span><strong>'+escapeHtml(f.name)+'</strong><small>'+escapeHtml(f.category)+'</small>'+(selected?'<span class="added-mark">✓</span>':'');card.addEventListener('click',()=>selectFandomTheme(f.name,f.emoji));grid.appendChild(card)});$('#fandomCatalogCount').textContent=matches.length+' fandoms in this directory'+(q&&!customAlready?' · plus your custom theme':'');if(!matches.length&&!q)grid.innerHTML='<div class="own-empty">No fandoms match this category yet.</div>'}
+$('#fandomCatalogSearch').addEventListener('input',renderFandomCatalog);
+document.querySelectorAll('[data-fandom-filter]').forEach(b=>b.addEventListener('click',()=>{fandomFilter=b.dataset.fandomFilter;document.querySelectorAll('[data-fandom-filter]').forEach(x=>x.classList.toggle('active',x===b));renderFandomCatalog()}));
+$('#searchFandomOfficial').addEventListener('click',()=>{const q=$('#fandomCatalogSearch').value.trim();const url=q?'https://www.fandom.com/search?query='+encodeURIComponent(q):'https://www.fandom.com/explore';window.open(url,'_blank','noopener,noreferrer')});
+renderFandomCatalog();
+$('#fandomForm').addEventListener('submit',e=>{e.preventDefault();const f=$('#fandomInput').value.trim();if(!f)return;$('#fandomInput').value='';selectFandomTheme(f,'✦');$('#fandomCatalogSearch').value=f;renderFandomCatalog();$('#fandomExplorer').scrollIntoView({behavior:'smooth',block:'start'})});
+$('#fandomNav').addEventListener('click',()=>$('#fandomExplorer').scrollIntoView({behavior:'smooth',block:'start'}));\ndocument.querySelectorAll('#editFandoms, #fandomJump').forEach(b=>b.addEventListener('click',()=>{$('#fandomExplorer').scrollIntoView({behavior:'smooth',block:'start'});$('#fandomCatalogSearch').focus({preventScroll:true})}));
 $('#clearHistory').addEventListener('click',()=>{history=[];save();renderHistory();toast('Search history cleared.')});
 $('#themeBtn').addEventListener('click',()=>{prefs.fandomTheme='';prefs.theme=prefs.theme==='light'?'violet':'light';applyTheme();save()});
 document.querySelectorAll('[data-mascot]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.mascot;const names={korra:'The Legend of Korra',luffy:'One Piece',chopper:'One Piece',zoro:'One Piece',nami:'One Piece',jinx:'Arcane',vi:'Arcane',ghibli:'Studio Ghibli'};prefs.fandomTheme=key;prefs.fandoms=prefs.fandoms.filter(x=>x!==names[key]);prefs.fandoms.push(names[key]);prefs.fandoms=prefs.fandoms.slice(-40);prefs.theme='violet';save();applyTheme();renderFandoms();$('#mascotStatus').textContent='Theme changed! '+names[key]+' is now in your fandom constellation. ✨';toast('Your '+names[key]+' theme is on!') }));
