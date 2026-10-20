@@ -14,7 +14,7 @@ Seek now has two search paths: a static index hosted alongside the website on Gi
 - **Fandom multiverse:** a searchable, category-filtered directory of 1,000+ anime, animation, TV/film, book, game, comic, music, webtoon, creator, aesthetic, sports, mythology, and internet-culture fandoms. Choosing any entry applies a deterministic custom colour palette and saves it to the local fandom constellation. Users can type any fandom name to generate a custom theme. For the full live catalogue, links open Fandom's official Explore/search experience. Cards attempt to load live reference thumbnails from Wikipedia's public page-summary endpoint and fall back to emoji artwork when a page has no suitable image. Every entry also has a direct link to search Fandom's official community catalogue. This is not a copy of every Fandom community. For anything missing, type its name to create a custom theme and open a direct Fandom search.
 - **Installable app:** `manifest.webmanifest`, `sw.js`, and `icon.svg` enable installation and cached offline search after the first successful load.
 - **Browser search provider:** `opensearch.xml` supports adding Seek to compatible browsers; the search URL accepts `?q=your+terms`.
-- **Homepage:** themes, local search history, fandom customization, The Seeker AI panel, external search provider options, and the independent **Seek Index** mode.
+- **Homepage:** themes, local search history, fandom customization, The Seeker AI panel, Google-backed specialist search routes for Images, Videos, News, Maps, and Scholar, and the independent **Seek Index** mode.
 
 ## Publish the website and first index
 
